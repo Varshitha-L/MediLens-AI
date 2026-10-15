@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.venv/
+venv/
+
+# Secrets and local environment
+.env
+.streamlit/secrets.toml
+
+# Local medical data: never commit patient-identifiable files
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Local models and notebook output
+models/*
+!models/.gitkeep
+.ipynb_checkpoints/
+.DS_Store
+# Python virtual environments
+.venv/
+.venv-*/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Local medical data
+data/raw/
+data/processed/
