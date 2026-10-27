@@ -1,0 +1,5 @@
+Actually, to count pages reliably, keep pages_processed = len(doc) immediately after opening the PDF, before the loop. Then use that variable in your returned dictionary.
+
+Why? A PDF can have 5 pages even if none contains selectable text. The page count should still be 5, not 0.
+
+Make this small change and run your test again.
