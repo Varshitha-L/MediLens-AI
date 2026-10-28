@@ -95,7 +95,7 @@ def answer_question(query: str, language: str = "en") -> dict:
             "insufficient_evidence": True,
             "safety_message": "MediLens AI supports health awareness and does not replace professional medical advice.",
         }
-
+    initialize_knowledge_base()
     # Normalize language code to en, hi, or kn
     lang_code = str(language).strip().lower()
     if lang_code in ["hindi", "hi"]:
