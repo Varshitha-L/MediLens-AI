@@ -138,9 +138,6 @@ User Question: {query}
     candidate_models = [
         "gemini-1.5-flash",
         "gemini-2.0-flash",
-        "models/gemini-1.5-flash",
-        "models/gemini-2.0-flash",
-        "models/gemini-3.8-flash",
     ]
 
     answer_text = None
