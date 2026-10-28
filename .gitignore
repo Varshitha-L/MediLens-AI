@@ -1,4 +1,23 @@
-.env
-venv/
-chroma_data/
+# Python cache
 __pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Local database and models
+chroma_data/
+models/*.pkl
+models/*.joblib
+
+# Local medical data
+data/raw/
+data/processed/
+!data/raw/.gitkeep

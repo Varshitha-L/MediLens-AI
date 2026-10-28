@@ -91,6 +91,29 @@ def answer_question(query: str, language: str = "en") -> dict:
 
     retrieved_chunk = documents[0]
     retrieved_meta = metadatas[0]
+    # If API key is missing, return verified reference text directly without calling Gemini
+    if not api_key:
+        return {
+            "status": "success",
+            "query": query,
+            "answer": (
+                f"Note: GEMINI_API_KEY is not configured. Retrieved verified clinical guidance: "
+                f"{retrieved_chunk}"
+            ),
+            "sources": [
+                {
+                    "source": retrieved_meta.get("source"),
+                    "topic": retrieved_meta.get("topic"),
+                    "page": retrieved_meta.get("page"),
+                    "excerpt": retrieved_chunk[:120] + "...",
+                }
+            ],
+            "insufficient_evidence": False,
+            "safety_message": (
+                "MediLens AI supports health awareness and does not replace"
+                " professional medical advice."
+            ),
+        }
 
     # 2. Strict Grounded RAG Prompt
     system_instruction = (
