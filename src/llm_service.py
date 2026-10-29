@@ -1,5 +1,6 @@
 
 import os
+import json
 import time
 
 from dotenv import load_dotenv
@@ -10,211 +11,270 @@ load_dotenv()
 
 MODEL_NAME = "gemini-3.6-flash"
 REQUEST_TIMEOUT_MS = 30000
+MAX_OUTPUT_TOKENS = 1500
+
+SAFETY_MESSAGE = (
+    "This tool supports health awareness and does not replace "
+    "professional medical advice."
+)
 
 
-def explain_results(parsed_results, language="English"):
+def _error_result(warnings):
+    """Return a consistent error response."""
+    return {
+        "status": "error",
+        "summary": "",
+        "explanations": [],
+        "safety_message": SAFETY_MESSAGE,
+        "warnings": warnings,
+    }
+
+
+def explain_report(parsed_report, flags, language):
     """
-    Generate a patient-friendly explanation of parsed medical results.
+    Explain parsed medical results using Gemini.
+
+    Args:
+        parsed_report: Parsed-report contract dictionary.
+        flags: Abnormality-checker output dictionary.
+        language: Desired explanation language.
 
     Returns:
-        {
-            "status": "success" or "error",
-            "explanation": str,
-            "warnings": list
-        }
+        Dictionary following the MediLens AI LLM contract.
     """
 
-    # Validate input
-    if not isinstance(parsed_results, list) or not parsed_results:
-        return {
-            "status": "error",
-            "explanation": "",
-            "warnings": ["No parsed medical results were provided."]
-        }
+    # Validate the parsed-report input.
+    if not isinstance(parsed_report, dict):
+        return _error_result(["parsed_report must be a dictionary."])
 
-    clean_results = []
+    if parsed_report.get("status") not in ("success", "partial"):
+        return _error_result([
+            "The parsed report is not in a usable state."
+        ])
+
+    results = parsed_report.get("results")
+
+    if not isinstance(results, list) or not results:
+        return _error_result([
+            "The parsed report contains no medical results."
+        ])
+
+    if not isinstance(flags, dict):
+        return _error_result([
+            "flags must be an abnormality-checker dictionary."
+        ])
+
+    if not isinstance(language, str) or not language.strip():
+        return _error_result(["A valid output language is required."])
 
     required_fields = {
         "test_name",
         "value",
         "unit",
-        "reference_range"
+        "reference_low",
+        "reference_high",
+        "extraction_confidence",
     }
 
-    for index, result in enumerate(parsed_results):
+    for index, result in enumerate(results):
         if not isinstance(result, dict):
-            return {
-                "status": "error",
-                "explanation": "",
-                "warnings": [
-                    f"Result {index + 1} must be a dictionary."
-                ]
-            }
+            return _error_result([
+                f"Result {index + 1} must be a dictionary."
+            ])
 
-        if not required_fields.issubset(result):
-            return {
-                "status": "error",
-                "explanation": "",
-                "warnings": [
-                    f"Result {index + 1} is missing required fields."
-                ]
-            }
+        missing = required_fields - result.keys()
+        if missing:
+            return _error_result([
+                f"Result {index + 1} is missing fields: "
+                + ", ".join(sorted(missing))
+            ])
 
-        if not str(result["test_name"]).strip():
-            return {
-                "status": "error",
-                "explanation": "",
-                "warnings": [
-                    f"Result {index + 1} has no test name."
-                ]
-            }
-
-        clean_results.append({
-            "test_name": str(result["test_name"]),
-            "value": result["value"],
-            "unit": result["unit"],
-            "reference_range": result["reference_range"]
-        })
+        if not isinstance(result["test_name"], str) or not result["test_name"].strip():
+            return _error_result([
+                f"Result {index + 1} has an invalid test name."
+            ])
 
     api_key = os.getenv("GEMINI_API_KEY")
-
     if not api_key:
-        return {
-            "status": "error",
-            "explanation": "",
-            "warnings": [
-                "GEMINI_API_KEY was not found. Check your .env file."
-            ]
-        }
+        return _error_result([
+            "GEMINI_API_KEY was not found. Check your .env file."
+        ])
+
+    prompt_data = {
+        "parsed_report": parsed_report,
+        "flags": flags,
+        "language": language.strip(),
+    }
 
     prompt = f"""
 You are MediLens AI, a medical information assistant.
 
-Explain the following reported test results in {language}
-using concise, patient-friendly language.
+Use only the report data and flags supplied below.
+Write a concise, patient-friendly explanation in the requested language.
 
-Results:
-{clean_results}
+INPUT:
+{json.dumps(prompt_data, ensure_ascii=False, allow_nan=False)}
 
-Instructions:
-- Explain what each test measures.
-- Preserve all supplied values and units exactly.
-- Compare a result with a reference range only when supplied.
-- If a range is missing, explicitly say it was not provided.
-- Never invent medical information or diagnose a disease.
-- Mention that results need interpretation in clinical context.
-- Do not recommend medication or treatment.
+Return ONLY one valid JSON object with this exact structure:
+{{
+  "summary": "A concise overview",
+  "explanations": [
+    {{
+      "test_name": "Exact supplied test name",
+      "explanation": "Patient-friendly explanation",
+      "limitations": ["Relevant limitation"]
+    }}
+  ],
+  "safety_message": "{SAFETY_MESSAGE}"
+}}
 
-Keep the response under 180 words.
-Use headings: Overview, Test Explanation, Limitations, Next Step.
+Rules:
+- Include an explanation for each supplied test result.
+- Preserve test names, values and units; never alter report data.
+- Do not invent reference ranges or clinical facts.
+- If reference ranges are missing, state that they were not provided.
+- Do not diagnose diseases or recommend medication or treatment.
+- Mention uncertainty and missing clinical context where relevant.
+- Do not invent confidence scores or citations.
+- Keep the summary and explanations concise.
+- Do not add Markdown fences or extra JSON keys.
 """
 
     client = None
     start_time = time.perf_counter()
 
     try:
-        print("   Connecting to Gemini...", flush=True)
-
         client = genai.Client(
             api_key=api_key,
             http_options=types.HttpOptions(
                 timeout=REQUEST_TIMEOUT_MS
-            )
+            ),
         )
+
+        print("Connecting to Gemini...", flush=True)
 
         response = client.models.generate_content(
             model=MODEL_NAME,
             contents=prompt,
             config={
                 "temperature": 0.2,
-                "max_output_tokens": 800
-            }
+                "max_output_tokens": MAX_OUTPUT_TOKENS,
+                "response_mime_type": "application/json",
+            },
         )
 
-        print("Finish reason:", response.candidates[0].finish_reason)
-        print("Raw response:", repr(response.text))
+        candidates = response.candidates or []
+        if not candidates:
+            return _error_result([
+                "Gemini returned no response candidates."
+            ])
 
-        finish_reason = response.candidates[0].finish_reason
-        explanation = response.text or ""
-
+        finish_reason = candidates[0].finish_reason
         print("Finish reason:", finish_reason, flush=True)
 
         if str(finish_reason).endswith("MAX_TOKENS"):
-            return {
-                "status": "error",
-                "explanation": "",
-                "warnings": [
-                    "Gemini's response was truncated. Increase the token limit."
-                ]
-            }
+            return _error_result([
+                "Gemini's response was truncated. Retry with an "
+                "appropriate output-token limit."
+            ])
 
-        if not explanation.strip():
-            return {
-                "status": "error",
-                "explanation": "",
-                "warnings": ["Gemini returned an empty response."]
-            }
+        raw_text = response.text or ""
+        if not raw_text.strip():
+            return _error_result([
+                "Gemini returned an empty response."
+            ])
 
-        if not explanation or not explanation.strip():
-            return {
-                "status": "error",
-                "explanation": "",
-                "warnings": [
-                    "Gemini returned an empty response."
-                ]
-            }
+        try:
+            data = json.loads(raw_text)
+        except json.JSONDecodeError:
+            return _error_result([
+                "Gemini returned invalid JSON."
+            ])
+
+        # Validate the required output schema.
+        if not isinstance(data, dict):
+            return _error_result([
+                "Gemini's response must be a JSON object."
+            ])
+
+        required_output = {
+            "summary",
+            "explanations",
+            "safety_message",
+        }
+
+        if not required_output.issubset(data):
+            return _error_result([
+                "Gemini's response is missing required fields."
+            ])
+
+        if not isinstance(data["summary"], str):
+            return _error_result(["summary must be a string."])
+
+        if not isinstance(data["explanations"], list):
+            return _error_result(["explanations must be a list."])
+
+        if not isinstance(data["safety_message"], str):
+            return _error_result(["safety_message must be a string."])
+
+        for item in data["explanations"]:
+            if not isinstance(item, dict):
+                return _error_result([
+                    "Each explanation must be a dictionary."
+                ])
+
+            if not all(
+                isinstance(item.get(key), str)
+                for key in ("test_name", "explanation")
+            ):
+                return _error_result([
+                    "Each explanation needs string test_name "
+                    "and explanation fields."
+                ])
+
+            if not isinstance(item.get("limitations"), list) or not all(
+                isinstance(value, str)
+                for value in item["limitations"]
+            ):
+                return _error_result([
+                    "Each explanation needs a list of string limitations."
+                ])
+
+        # Ensure the model has not omitted a supplied test.
+        expected_names = [item["test_name"] for item in results]
+        actual_names = [
+            item["test_name"] for item in data["explanations"]
+        ]
+
+        if actual_names != expected_names:
+            return _error_result([
+                "Gemini's explanation test names do not match "
+                "the parsed report."
+            ])
 
         print(
-            f"   Gemini responded in "
+            f"Gemini responded in "
             f"{time.perf_counter() - start_time:.2f}s",
-            flush=True
+            flush=True,
         )
 
         return {
             "status": "success",
-            "explanation": explanation.strip(),
-            "warnings": []
+            "summary": data["summary"],
+            "explanations": data["explanations"],
+            "safety_message": data["safety_message"],
+            "warnings": [],
         }
 
-    except Exception as e:
-        # Print the actual error for debugging.
-        # Never print the API key.
+    except Exception as exc:
         print(
-            f"Gemini error details: {type(e).__name__}: {e}",
-            flush=True
+            f"Gemini error: {type(exc).__name__}: {exc}",
+            flush=True,
         )
-
-        return {
-            "status": "error",
-            "explanation": "",
-            "warnings": [
-                f"Gemini request failed: {type(e).__name__}: {e}"
-            ]
-        }
+        return _error_result([
+            f"Gemini request failed: {type(exc).__name__}: {exc}"
+        ])
 
     finally:
         if client is not None:
             client.close()
-
-
-if __name__ == "__main__":
-    sample_results = [
-        {
-            "test_name": "Hemoglobin",
-            "value": 13.5,
-            "unit": "g/dL",
-            "reference_range": None
-        }
-    ]
-
-    result = explain_results(sample_results)
-
-    print("\nStatus:", result["status"])
-
-    if result["status"] == "success":
-        print("\nExplanation:\n")
-        print(result["explanation"])
-    else:
-        print("\nWarnings:")
-        for warning in result["warnings"]:
-            print("-", warning)

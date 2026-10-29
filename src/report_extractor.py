@@ -1,53 +1,121 @@
 
+import io
 import pymupdf
+import pytesseract
+from PIL import Image
+
+# Explicitly configure the Windows Tesseract executable.
+pytesseract.pytesseract.tesseract_cmd = (
+    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+)
 
 
-def extract_text(pdf_path):
+def extract_report(file_bytes, filename):
+    source_type = (
+        filename.rsplit(".", 1)[-1].lower()
+        if isinstance(filename, str) and "." in filename
+        else "unknown"
+    )
+
+    if source_type != "pdf":
+        return {
+            "status": "error",
+            "text": "",
+            "source_type": source_type,
+            "pages_processed": 0,
+            "warnings": ["Only PDF files are supported."]
+        }
+
+    if not isinstance(file_bytes, bytes) or not file_bytes:
+        return {
+            "status": "error",
+            "text": "",
+            "source_type": "pdf",
+            "pages_processed": 0,
+            "warnings": ["A non-empty PDF byte sequence is required."]
+        }
+
     doc = None
 
     try:
-        doc = pymupdf.open(pdf_path)
+        doc = pymupdf.open(stream=file_bytes, filetype="pdf")
         pages_processed = len(doc)
         text_parts = []
         warnings = []
 
         for page_number, page in enumerate(doc, start=1):
-            page_text = page.get_text()
-            text_parts.append(page_text)
+            page_text = page.get_text().strip()
 
-            if not page_text.strip():
+            if page_text:
+                text_parts.append(page_text)
+                continue
+
+            # No selectable text: render the page and try OCR.
+            try:
+                pix = page.get_pixmap(
+                    matrix=pymupdf.Matrix(2, 2),
+                    alpha=False
+                )
+                image_bytes = pix.tobytes("png")
+
+                with Image.open(io.BytesIO(image_bytes)) as image:
+                    ocr_text = pytesseract.image_to_string(
+                        image,
+                        lang="eng"
+                    ).strip()
+
+                if ocr_text:
+                    text_parts.append(ocr_text)
+                    warnings.append(
+                        f"OCR was used on page {page_number}; "
+                        "verify the extracted text."
+                    )
+                else:
+                    text_parts.append("")
+                    warnings.append(
+                        f"No selectable text or OCR text found "
+                        f"on page {page_number}."
+                    )
+
+            except Exception as exc:
+                text_parts.append("")
                 warnings.append(
-                    f"No selectable text found on page {page_number}."
+                    f"OCR failed on page {page_number}: "
+                    f"{type(exc).__name__}: {exc}"
                 )
 
-        text = "\n".join(text_parts)
+        text = "\n\n".join(text_parts).strip()
 
-        if not text.strip():
+        if not text:
             return {
                 "status": "partial",
                 "text": "",
                 "source_type": "pdf",
                 "pages_processed": pages_processed,
                 "warnings": warnings or [
-                    "No selectable text found in the PDF."
+                    "No text could be extracted from the PDF."
                 ]
             }
 
+        status = "partial" if warnings else "success"
+
         return {
-            "status": "success",
+            "status": status,
             "text": text,
             "source_type": "pdf",
             "pages_processed": pages_processed,
             "warnings": warnings
         }
 
-    except Exception as e:
+    except Exception as exc:
         return {
             "status": "error",
             "text": "",
             "source_type": "pdf",
             "pages_processed": 0,
-            "warnings": [str(e)]
+            "warnings": [
+                f"PDF extraction failed: {type(exc).__name__}: {exc}"
+            ]
         }
 
     finally:

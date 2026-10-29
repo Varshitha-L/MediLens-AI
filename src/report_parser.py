@@ -1,16 +1,49 @@
 
 import re
+import uuid
 
 
-def parse_report(text):
+def parse_report(extracted_text):
+    """
+    Convert extracted medical report text into the MediLens AI
+    parsed-report contract.
+
+    Returns a dictionary with status, report_id, results, warnings.
+    """
+
+    if not isinstance(extracted_text, str):
+        return {
+            "status": "error",
+            "report_id": None,
+            "results": [],
+            "warnings": ["extracted_text must be a string."],
+        }
+
+    if not extracted_text.strip():
+        return {
+            "status": "partial",
+            "report_id": None,
+            "results": [],
+            "warnings": ["No report text was provided."],
+        }
+
     results = []
+    warnings = []
 
-    pattern = (
+    pattern = re.compile(
         r"^(.+?)\s*[:=]\s*(.+?)"
-        r"(?:\s*\(Reference:\s*([^)]+)\))?$"
+        r"(?:\s*\(\s*Reference:\s*([^)]+)\s*\))?$",
+        re.IGNORECASE,
     )
 
-    value_pattern = r"^([+-]?\d+(?:\.\d+)?)\s*(.*)$"
+    value_pattern = re.compile(
+        r"^([+-]?\d+(?:\.\d+)?)\s*(.*?)$"
+    )
+
+    range_pattern = re.compile(
+        r"^\s*([+-]?\d+(?:\.\d+)?)\s*-\s*"
+        r"([+-]?\d+(?:\.\d+)?)\s*$"
+    )
 
     ignored_labels = {
         "patient name",
@@ -24,10 +57,12 @@ def parse_report(text):
         "lab name",
         "doctor name",
         "specimen",
-        "sample type"
+        "sample type",
     }
 
-    for line in text.splitlines():
+    for line_number, line in enumerate(
+        extracted_text.splitlines(), start=1
+    ):
         line = line.strip()
 
         if not line:
@@ -36,43 +71,73 @@ def parse_report(text):
         if line.lower().startswith("test result:"):
             line = line.split(":", 1)[1].strip()
 
-        match = re.search(pattern, line, re.IGNORECASE)
+        match = pattern.match(line)
 
         if not match:
             continue
 
         test_name = match.group(1).strip()
-        result = match.group(2).strip()
-
-        reference_range = (
-            match.group(3).strip()
-            if match.group(3)
-            else None
-        )
+        raw_result = match.group(2).strip()
+        raw_reference = match.group(3)
 
         if test_name.lower() in ignored_labels:
             continue
 
-        if not test_name or not result:
+        if not test_name or not raw_result:
+            warnings.append(
+                f"Line {line_number}: incomplete test result skipped."
+            )
             continue
 
-        value_match = re.match(value_pattern, result)
+        value_match = value_pattern.match(raw_result)
 
         if value_match:
             value = float(value_match.group(1))
             unit = value_match.group(2).strip() or None
         else:
-            value = result
+            value = raw_result
             unit = None
+
+        reference_low = None
+        reference_high = None
+
+        if raw_reference:
+            range_match = range_pattern.match(raw_reference)
+
+            if range_match:
+                reference_low = float(range_match.group(1))
+                reference_high = float(range_match.group(2))
+            else:
+                warnings.append(
+                    f"Line {line_number}: reference range could "
+                    "not be parsed; manual review may be needed."
+                )
 
         results.append({
             "test_name": test_name,
             "value": value,
             "unit": unit,
-            "reference_range": reference_range
+            "reference_low": reference_low,
+            "reference_high": reference_high,
+            "extraction_confidence": None,
         })
 
-    return results
+    if results and warnings:
+        status = "partial"
+    elif results:
+        status = "success"
+    else:
+        status = "partial"
+        warnings.append(
+            "No recognizable medical test results were found."
+        )
+
+    return {
+        "status": status,
+        "report_id": f"report-{uuid.uuid4().hex[:12]}",
+        "results": results,
+        "warnings": warnings,
+    }
 
 
 if __name__ == "__main__":
@@ -87,4 +152,5 @@ if __name__ == "__main__":
     Test result: Platelets = 250000 cells/uL
     """
 
-    print(parse_report(sample_text))
+    import json
+    print(json.dumps(parse_report(sample_text), indent=2))
