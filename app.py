@@ -128,47 +128,69 @@ def report_tab(language_code: str) -> None:
 
 def chatbot_tab(language_code: str) -> None:
     st.subheader("Medical information chatbot")
-    st.write("Ask a general health-information question. Answers should be grounded in the team's approved reference documents.")
-    question = st.text_area("Your question", placeholder="Example: What does a reference range mean?", key="medical_question")
+    st.write(
+        "Ask a general health-information question. "
+        "Answers should be grounded in the team's approved reference documents."
+    )
+
+    question = st.text_area(
+        "Your question",
+        placeholder="Example: What does a reference range mean?",
+        key="medical_question",
+    )
 
     if st.button("Ask question", type="primary", key="ask_question"):
         if not question.strip():
             st.warning("Enter a question first.")
             return
+
         try:
             answer_question = load_function("medical_rag", "answer_question")
+
             with st.spinner("Searching trusted references..."):
                 result = answer_question(question.strip(), language_code)
-            if show_status_error(result, "Medical Q&A"):
-                show_warnings(result, "Medical Q&A")
-                return
 
             answer = result.get("answer")
-            if result.get("insufficient_evidence"):
-                st.warning("The knowledge base did not provide enough evidence for a reliable answer.")
+
             if answer:
                 st.markdown("#### Answer")
                 st.write(answer)
 
             sources = result.get("sources", []) or []
+
             if sources:
                 st.markdown("#### Sources")
+
                 for index, source in enumerate(sources, start=1):
-                    title = source.get("title") or source.get("source_id") or f"Source {index}"
+                    title = (
+                        source.get("title")
+                        or source.get("source_id")
+                        or f"Source {index}"
+                    )
                     url = source.get("url")
                     page = source.get("page")
                     suffix = f" (page {page})" if page is not None else ""
+
                     if url:
                         st.markdown(f"{index}. [{title}]({url}){suffix}")
                     else:
                         st.write(f"{index}. {title}{suffix}")
+
                     if source.get("excerpt"):
                         st.caption(source["excerpt"])
-            show_warnings(result, "Medical Q&A")
+
         except (ImportError, AttributeError):
-            st.warning("The chatbot is not connected yet. Member 3 must add src/medical_rag.py with answer_question(question, language).")
+            st.warning(
+                "The chatbot is not connected yet. "
+                "Member 3 must add src/medical_rag.py "
+                "with answer_question(question, language)."
+            )
+
         except Exception as exc:
-            st.error("The chatbot could not complete the request. Check the RAG module and its configuration.")
+            st.error(
+                "The chatbot could not complete the request. "
+                "Check the RAG module and its configuration."
+            )
             st.caption(f"Error type: {type(exc).__name__}")
 
 
