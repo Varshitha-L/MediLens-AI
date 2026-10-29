@@ -231,7 +231,6 @@ SAFETY_MESSAGE = (
     "professional medical advice."
 )
 
-
 # 6. Best-effort offline classification (used only if Gemini fails)
 MEDICAL_TERMS = {
     "medical", "health", "symptom", "symptoms", "disease", "illness",
@@ -246,6 +245,32 @@ MEDICAL_TERMS = {
     "ನೋವು", "ಜ್ವರ", "ಕೆಮ್ಮು", "ಔಷಧಿ", "ವೈದ್ಯರು", "ಆರೋಗ್ಯ", "ರಕ್ತ", "ಮಧುಮೇಹ",
 }
 
+
+def answer_question(query: str, language: str = "en") -> dict:
+    """Retrieves evidence from Chroma and generates a source-backed answer using Gemini."""
+    if not query.strip():
+        return {
+            "status": "error",
+            "query": query,
+            "answer": "Please provide a valid question.",
+            "sources": [],
+            "insufficient_evidence": True,
+            "safety_message": "MediLens AI supports health awareness and does not replace professional medical advice.",
+        }
+
+    initialize_knowledge_base()
+
+    # Normalize language code to en, hi, or kn
+    lang_code = str(language).strip().lower()
+    if lang_code in ["hindi", "hi"]:
+        target_code = "hi"
+        target_name = "Hindi"
+    elif lang_code in ["kannada", "kn"]:
+        target_code = "kn"
+        target_name = "Kannada"
+    else:
+        target_code = "en"
+        target_name = "English"
 
 def offline_medical_guess(query, distance=None):
     """Approximate medical classification if the model cannot be reached."""
