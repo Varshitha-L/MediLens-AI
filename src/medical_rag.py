@@ -233,6 +233,13 @@ def initialize_knowledge_base() -> None:
     if _KNOWLEDGE_BASE_READY:
         return
 
+    # Remove legacy seed documents so stale keyword-only passages cannot
+    # compete with the reviewed source collection after an app upgrade.
+    existing = collection.get(include=[])
+    existing_ids = existing.get("ids", []) if isinstance(existing, dict) else []
+    if existing_ids:
+        collection.delete(ids=existing_ids)
+
     collection.upsert(
         ids=[item["id"] for item in MEDICAL_DOCUMENTS],
         documents=[item["text"] for item in MEDICAL_DOCUMENTS],
