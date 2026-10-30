@@ -210,9 +210,12 @@ def explain_report(parsed_report, flags, language):
 
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
-        return _error_result([
-            "GEMINI_API_KEY was not found. Check your .env file."
-        ])
+        return _range_based_fallback(
+            parsed_report,
+            flags,
+            language,
+            "GEMINI_API_KEY was not configured.",
+        )
 
     prompt_data = {
         "parsed_report": parsed_report,
