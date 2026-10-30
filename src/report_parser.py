@@ -10,51 +10,51 @@ import re
 import uuid
 from typing import Any
 
-NUMBER = r"[+-]?(?:(?:\\d{1,3}(?:,\\d{3})+|\\d+)(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?"
-UNIT = r"(?:[x×]?\\s*10(?:\\^[0-9]+|[⁰¹²³⁴⁵⁶⁷⁸⁹]+)/(?:[A-Za-zµμ]+)|[A-Za-zµμ]+[A-Za-zµμ0-9.^²³⁴]*(?:/[A-Za-zµμ0-9.^²³⁴]+)?|%)"
+NUMBER = r"[+-]?(?:(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?"
+UNIT = r"(?:[x×]?\s*10(?:\^[0-9]+|[⁰¹²³⁴⁵⁶⁷⁸⁹]+)/(?:[A-Za-zµμ]+)|[A-Za-zµμ]+[A-Za-zµμ0-9.^²³⁴]*(?:/[A-Za-zµμ0-9.^²³⁴]+)?|%)"
 RANGE_TEXT = (
-    rf"(?:{NUMBER}\\s*(?:-|–|—|\\bto\\b)\\s*{NUMBER}"
-    rf"|(?:less than|up to|not more than|below|<=|<|≤|greater than|more than|above|>=|>|≥)\\s*{NUMBER})"
+    rf"(?:{NUMBER}\s*(?:-|–|—|\bto\b)\s*{NUMBER}"
+    rf"|(?:less than|up to|not more than|below|<=|<|≤|greater than|more than|above|>=|>|≥)\s*{NUMBER})"
 )
-VALUE_PATTERN = re.compile(rf"^\\s*({NUMBER})\\s*(.*?)\\s*$")
+VALUE_PATTERN = re.compile(rf"^\s*({NUMBER})\s*(.*?)\s*$")
 RANGE_PATTERN = re.compile(
-    rf"^\\s*({NUMBER})\\s*(?:-|–|—|to)\\s*({NUMBER})"
-    rf"(?:\\s*[A-Za-zµμ%][A-Za-zµμ0-9./%^²³⁴]*)?\\s*$",
+    rf"^\s*({NUMBER})\s*(?:-|–|—|to)\s*({NUMBER})"
+    rf"(?:\s*[A-Za-zµμ%][A-Za-zµμ0-9./%^²³⁴]*)?\s*$",
     re.IGNORECASE,
 )
 UPPER_ONLY_PATTERN = re.compile(
-    rf"(?:less than|up to|not more than|below|<=|<|≤)\\s*({NUMBER})",
+    rf"(?:less than|up to|not more than|below|<=|<|≤)\s*({NUMBER})",
     re.IGNORECASE,
 )
 LOWER_ONLY_PATTERN = re.compile(
-    rf"(?:greater than|more than|above|>=|>|≥)\\s*({NUMBER})",
+    rf"(?:greater than|more than|above|>=|>|≥)\s*({NUMBER})",
     re.IGNORECASE,
 )
 
 HEADER_PATTERN = re.compile(
-    r"\\b(?:test\\s+name|investigation|parameter|analyte|test)\\s+"
-    r"(?:observed\\s+value|measured\\s+value|patient\\s+value|result|value)\\s+"
-    r"(?:unit|units)\\s+"
-    r"(?:biological\\s+reference\\s+interval|reference\\s+interval|"
-    r"reference\\s+range|normal\\s+range|normal\\s+values|reference\\s+values)"
-    r"(?:\\s+flag)?\\b",
+    r"\b(?:test\s+name|investigation|parameter|analyte|test)\s+"
+    r"(?:observed\s+value|measured\s+value|patient\s+value|result|value)\s+"
+    r"(?:unit|units)\s+"
+    r"(?:biological\s+reference\s+interval|reference\s+interval|"
+    r"reference\s+range|normal\s+range|normal\s+values|reference\s+values)"
+    r"(?:\s+flag)?\b",
     re.IGNORECASE,
 )
 
 FLAT_ROW_PATTERN = re.compile(
-    rf"(?P<name>[\\w][\\w\\s()./&,+-]*?)\\s+"
-    rf"(?P<value>{NUMBER})\\s+"
-    rf"(?P<unit>{UNIT})\\s+"
-    rf"(?P<reference>(?:(?:desirable|optimal|normal)\\s*:\\s*)?{RANGE_TEXT}"
-    rf"(?:\\s*[A-Za-zµμ%][A-Za-zµμ0-9./%^²³⁴]*)?)",
+    rf"(?P<name>[\w][\w\s()./&,+-]*?)\s+"
+    rf"(?P<value>{NUMBER})\s+"
+    rf"(?P<unit>{UNIT})\s+"
+    rf"(?P<reference>(?:(?:desirable|optimal|normal)\s*:\s*)?{RANGE_TEXT}"
+    rf"(?:\s*[A-Za-zµμ%][A-Za-zµμ0-9./%^²³⁴]*)?)",
     re.IGNORECASE,
 )
 
 LINE_PATTERN = re.compile(
-    rf"^\\s*(?P<name>[^:=]+?)\\s*[:=]\\s*"
-    rf"(?P<value>{NUMBER})\\s*(?P<unit>{UNIT})?\\s*"
-    rf"(?:[\\[(]\\s*(?:(?:reference|ref|normal\\s+range|reference\\s+range)"
-    rf"\\s*[:=]?\\s*)?(?P<reference>{RANGE_TEXT})\\s*[\\])])?\\s*$",
+    rf"^\s*(?P<name>[^:=]+?)\s*[:=]\s*"
+    rf"(?P<value>{NUMBER})\s*(?P<unit>{UNIT})?\s*"
+    rf"(?:[\[(]\s*(?:(?:reference|ref|normal\s+range|reference\s+range)"
+    rf"\s*[:=]?\s*)?(?P<reference>{RANGE_TEXT})\s*[\])])?\s*$",
     re.IGNORECASE,
 )
 
@@ -75,11 +75,11 @@ ADMIN_PREFIXES = (
 )
 
 FLAGS = re.compile(
-    r"^(?:(?:HIGH|LOW|NORMAL|ABNORMAL|H|L)\\s+|WITHIN\\s+RANGE\\s+)+",
+    r"^(?:(?:HIGH|LOW|NORMAL|ABNORMAL|H|L)\s+|WITHIN\s+RANGE\s+)+",
     re.IGNORECASE,
 )
 TRAILING_FLAGS = re.compile(
-    r"\\s+(?:HIGH|LOW|NORMAL|ABNORMAL|WITHIN\\s+RANGE|H|L)$",
+    r"\s+(?:HIGH|LOW|NORMAL|ABNORMAL|WITHIN\s+RANGE|H|L)$",
     re.IGNORECASE,
 )
 
@@ -89,7 +89,7 @@ def _to_float(value: str) -> float:
 
 
 def _is_ignored_name(name: str) -> bool:
-    normalized = re.sub(r"\\s+", " ", name).strip().lower()
+    normalized = re.sub(r"\s+", " ", name).strip().lower()
     return normalized in IGNORED_LABELS or any(
         normalized.startswith(prefix) for prefix in ADMIN_PREFIXES
     )
@@ -128,7 +128,7 @@ def _build_result(
     line_number: int,
     warnings: list[str],
 ) -> dict[str, Any] | None:
-    test_name = re.sub(r"\\s+", " ", test_name).strip()
+    test_name = re.sub(r"\s+", " ", test_name).strip()
     test_name = FLAGS.sub("", test_name)
     test_name = TRAILING_FLAGS.sub("", test_name).strip()
     if not test_name or _is_ignored_name(test_name):
@@ -222,7 +222,7 @@ def _parse_flattened_tables(
     text: str, warnings: list[str]
 ) -> list[dict[str, Any]] | None:
     """Parse tables flattened into one line or paragraphs with a header."""
-    normalized_text = re.sub(r"\\s+", " ", text).strip()
+    normalized_text = re.sub(r"\s+", " ", text).strip()
     headers = list(HEADER_PATTERN.finditer(normalized_text))
     if not headers:
         return None
