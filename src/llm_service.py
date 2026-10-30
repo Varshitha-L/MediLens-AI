@@ -10,6 +10,7 @@ from google.genai import types
 load_dotenv()
 
 MODEL_NAME = "gemini-3.6-flash"
+FALLBACK_MODEL_NAME = "gemini-3.5-flash-lite"
 REQUEST_TIMEOUT_MS = 30000
 MAX_OUTPUT_TOKENS = 1500
 
@@ -27,6 +28,119 @@ def _error_result(warnings):
         "explanations": [],
         "safety_message": SAFETY_MESSAGE,
         "warnings": warnings,
+    }
+
+
+def _display_value(value):
+    """Format a report value without changing its numeric meaning."""
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        number = float(value)
+        return str(int(number)) if number.is_integer() else str(value)
+    return str(value)
+
+
+def _range_based_fallback(parsed_report, flags, language, reason):
+    """
+    Provide a transparent, non-AI comparison if Gemini is unavailable.
+    This uses only report values and the supplied reference limits/statuses.
+    It does not infer diseases, causes, or treatment.
+    """
+    code = str(language).strip().lower()
+    if code in {"hindi", "hi"}:
+        code = "hi"
+    elif code in {"kannada", "kn"}:
+        code = "kn"
+    else:
+        code = "en"
+
+    messages = {
+        "en": {
+            "summary": (
+                "Gemini's AI explanation is temporarily unavailable. The notes below "
+                "only compare extracted values with the reference limits printed in "
+                "your report; they do not explain medical causes."
+            ),
+            "low": "{name}: {value} {unit} is below the report's lower reference limit ({low} {unit}).",
+            "high": "{name}: {value} {unit} is above the report's upper reference limit ({high} {unit}).",
+            "within_range": "{name}: {value} {unit} is within the reference range supplied in the report ({low} to {high} {unit}).",
+            "unknown": "{name}: a safe comparison cannot be made because the report does not provide a complete or usable reference range.",
+            "limit_1": "This is only a numerical comparison with the reference information extracted from the report.",
+            "limit_2": "It is not a diagnosis. A healthcare professional must interpret results using the person's health history and clinical context.",
+        },
+        "hi": {
+            "summary": (
+                "Gemini की AI व्याख्या अभी उपलब्ध नहीं है। नीचे दिए गए नोट केवल रिपोर्ट "
+                "में दी गई संदर्भ सीमाओं से संख्यात्मक तुलना करते हैं; ये चिकित्सकीय कारण नहीं बताते।"
+            ),
+            "low": "{name}: {value} {unit} रिपोर्ट में दी गई निचली संदर्भ सीमा ({low} {unit}) से कम है।",
+            "high": "{name}: {value} {unit} रिपोर्ट में दी गई ऊपरी संदर्भ सीमा ({high} {unit}) से अधिक है।",
+            "within_range": "{name}: {value} {unit} रिपोर्ट में दी गई संदर्भ सीमा ({low} से {high} {unit}) के भीतर है।",
+            "unknown": "{name}: पूरी या उपयोगी संदर्भ सीमा उपलब्ध नहीं है, इसलिए सुरक्षित तुलना नहीं की जा सकती।",
+            "limit_1": "यह केवल रिपोर्ट से निकाली गई संदर्भ जानकारी के साथ संख्यात्मक तुलना है।",
+            "limit_2": "यह निदान नहीं है। परिणामों की व्याख्या स्वास्थ्य इतिहास और चिकित्सकीय जानकारी के आधार पर स्वास्थ्य विशेषज्ञ को करनी चाहिए।",
+        },
+        "kn": {
+            "summary": (
+                "Gemini AI ವಿವರಣೆ ತಾತ್ಕಾಲಿಕವಾಗಿ ಲಭ್ಯವಿಲ್ಲ. ಕೆಳಗಿನ ಟಿಪ್ಪಣಿಗಳು ವರದಿಯಲ್ಲಿ "
+                "ನೀಡಿರುವ ಉಲ್ಲೇಖ ಮಿತಿಗಳೊಂದಿಗೆ ಸಂಖ್ಯಾತ್ಮಕ ಹೋಲಿಕೆ ಮಾತ್ರ; ವೈದ್ಯಕೀಯ ಕಾರಣಗಳನ್ನು ವಿವರಿಸುವುದಿಲ್ಲ."
+            ),
+            "low": "{name}: {value} {unit} ವರದಿಯಲ್ಲಿ ನೀಡಿರುವ ಕೆಳಗಿನ ಉಲ್ಲೇಖ ಮಿತಿ ({low} {unit})ಗಿಂತ ಕಡಿಮೆಯಾಗಿದೆ.",
+            "high": "{name}: {value} {unit} ವರದಿಯಲ್ಲಿ ನೀಡಿರುವ ಮೇಲಿನ ಉಲ್ಲೇಖ ಮಿತಿ ({high} {unit})ಗಿಂತ ಹೆಚ್ಚಾಗಿದೆ.",
+            "within_range": "{name}: {value} {unit} ವರದಿಯಲ್ಲಿ ನೀಡಿರುವ ಉಲ್ಲೇಖ ಮಿತಿ ({low} ರಿಂದ {high} {unit}) ಒಳಗಿದೆ.",
+            "unknown": "{name}: ಸಂಪೂರ್ಣ ಅಥವಾ ಉಪಯುಕ್ತ ಉಲ್ಲೇಖ ಮಿತಿ ಇಲ್ಲದ ಕಾರಣ ಸುರಕ್ಷಿತ ಹೋಲಿಕೆ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ.",
+            "limit_1": "ಇದು ವರದಿಯಿಂದ ಪಡೆದ ಉಲ್ಲೇಖ ಮಾಹಿತಿಯೊಂದಿಗೆ ಮಾಡಿದ ಸಂಖ್ಯಾತ್ಮಕ ಹೋಲಿಕೆ ಮಾತ್ರ.",
+            "limit_2": "ಇದು ರೋಗನಿರ್ಣಯವಲ್ಲ. ವ್ಯಕ್ತಿಯ ಆರೋಗ್ಯ ಇತಿಹಾಸ ಮತ್ತು ವೈದ್ಯಕೀಯ ಸಂದರ್ಭವನ್ನು ಪರಿಗಣಿಸಿ ಆರೋಗ್ಯ ವೃತ್ತಿಪರರು ಫಲಿತಾಂಶಗಳನ್ನು ಅರ್ಥೈಸಬೇಕು.",
+        },
+    }
+    text = messages[code]
+    raw_results = parsed_report.get("results", [])
+    checked_results = flags.get("results", []) if isinstance(flags, dict) else []
+    explanations = []
+
+    for index, result in enumerate(raw_results):
+        if not isinstance(result, dict):
+            continue
+        checked = (
+            checked_results[index]
+            if index < len(checked_results) and isinstance(checked_results[index], dict)
+            else {}
+        )
+        status = checked.get("status", "unknown")
+        if status not in {"low", "high", "within_range"}:
+            status = "unknown"
+
+        name = str(result.get("test_name", "Unknown test"))
+        value = _display_value(result.get("value", "not supplied"))
+        unit = str(result.get("unit") or "").strip()
+        low_value = result.get("reference_low")
+        high_value = result.get("reference_high")
+        low = _display_value(low_value) if low_value is not None else "—"
+        high = _display_value(high_value) if high_value is not None else "—"
+
+        if status == "low":
+            body = text["low"].format(name=name, value=value, unit=unit, low=low)
+        elif status == "high":
+            body = text["high"].format(name=name, value=value, unit=unit, high=high)
+        elif status == "within_range":
+            body = text["within_range"].format(name=name, value=value, unit=unit, low=low, high=high)
+        else:
+            body = text["unknown"].format(name=name, value=value, unit=unit)
+
+        explanations.append({
+            "test_name": name,
+            "explanation": body,
+            "limitations": [text["limit_1"], text["limit_2"]],
+        })
+
+    return {
+        "status": "success",
+        "summary": text["summary"],
+        "explanations": explanations,
+        "safety_message": SAFETY_MESSAGE,
+        "warnings": ["AI explanation unavailable; showing range comparisons only."]
+                    + ([str(reason)] if reason else []),
+        "ai_generated": False,
+        "explanation_mode": "range_comparison_fallback",
     }
 
 
@@ -153,15 +267,39 @@ Rules:
 
         print("Connecting to Gemini...", flush=True)
 
-        response = client.models.generate_content(
-            model=MODEL_NAME,
-            contents=prompt,
-            config={
-                "temperature": 0.2,
-                "max_output_tokens": MAX_OUTPUT_TOKENS,
-                "response_mime_type": "application/json",
-            },
-        )
+        response = None
+        model_errors = []
+        for model_name in (MODEL_NAME, FALLBACK_MODEL_NAME):
+            try:
+                print(f"Connecting to Gemini model: {model_name}", flush=True)
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                    config={
+                        "temperature": 0.2,
+                        "max_output_tokens": MAX_OUTPUT_TOKENS,
+                        "response_mime_type": "application/json",
+                    },
+                )
+                if response and response.text:
+                    print(f"Gemini responded with {model_name}", flush=True)
+                    break
+                model_errors.append(f"{model_name}: empty response")
+                response = None
+            except Exception as model_exc:
+                model_errors.append(f"{model_name}: {type(model_exc).__name__}")
+                print(
+                    f"Gemini model {model_name} failed: {type(model_exc).__name__}",
+                    flush=True,
+                )
+
+        if response is None:
+            return _range_based_fallback(
+                parsed_report,
+                flags,
+                language,
+                "; ".join(model_errors),
+            )
 
         candidates = response.candidates or []
         if not candidates:
@@ -180,22 +318,22 @@ Rules:
 
         raw_text = response.text or ""
         if not raw_text.strip():
-            return _error_result([
-                "Gemini returned an empty response."
-            ])
+            return _range_based_fallback(
+                parsed_report, flags, language, "Gemini returned an empty response."
+            )
 
         try:
             data = json.loads(raw_text)
         except json.JSONDecodeError:
-            return _error_result([
-                "Gemini returned invalid JSON."
-            ])
+            return _range_based_fallback(
+                parsed_report, flags, language, "Gemini returned invalid JSON."
+            )
 
         # Validate the required output schema.
         if not isinstance(data, dict):
-            return _error_result([
-                "Gemini's response must be a JSON object."
-            ])
+            return _range_based_fallback(
+                parsed_report, flags, language, "Gemini returned an invalid response format."
+            )
 
         required_output = {
             "summary",
@@ -204,9 +342,9 @@ Rules:
         }
 
         if not required_output.issubset(data):
-            return _error_result([
-                "Gemini's response is missing required fields."
-            ])
+            return _range_based_fallback(
+                parsed_report, flags, language, "Gemini's response was missing required fields."
+            )
 
         if not isinstance(data["summary"], str):
             return _error_result(["summary must be a string."])
@@ -264,6 +402,8 @@ Rules:
             "explanations": data["explanations"],
             "safety_message": data["safety_message"],
             "warnings": [],
+            "ai_generated": True,
+            "explanation_mode": "gemini",
         }
 
     except Exception as exc:
@@ -271,9 +411,12 @@ Rules:
             f"Gemini error: {type(exc).__name__}: {exc}",
             flush=True,
         )
-        return _error_result([
-            f"Gemini request failed: {type(exc).__name__}: {exc}"
-        ])
+        return _range_based_fallback(
+            parsed_report,
+            flags,
+            language,
+            f"Gemini request failed: {type(exc).__name__}",
+        )
 
     finally:
         if client is not None:
