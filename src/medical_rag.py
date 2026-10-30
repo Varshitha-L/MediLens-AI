@@ -33,99 +33,136 @@ collection = chroma_client.get_or_create_collection(name="medical_knowledge")
 # 3. Translated, prewritten fallback answers for the four starter topics
 FALLBACK_KNOWLEDGE = {
     "doc_glucose": {
-        "en": (
-            "Fasting blood glucose is commonly considered normal at 70–99 mg/dL. "
-            "Values of 100–125 mg/dL may indicate prediabetes. A result of "
-            "126 mg/dL or higher can indicate diabetes, but diagnosis requires "
-            "appropriate confirmation by a healthcare professional."
-        ),
-        "hi": (
-            "उपवास के दौरान रक्त में ग्लूकोज़ का सामान्य स्तर आमतौर पर "
-            "70–99 mg/dL होता है। 100–125 mg/dL का स्तर प्रीडायबिटीज का "
-            "संकेत हो सकता है। 126 mg/dL या उससे अधिक स्तर की पुष्टि उचित "
-            "जाँच और स्वास्थ्य विशेषज्ञ की सलाह से की जानी चाहिए।"
-        ),
-        "kn": (
-            "ಉಪವಾಸದ ರಕ್ತದ ಗ್ಲೂಕೋಸ್ ಸಾಮಾನ್ಯವಾಗಿ 70–99 mg/dL ಇರುತ್ತದೆ. "
-            "100–125 mg/dL ಮಟ್ಟವು ಪೂರ್ವ ಮಧುಮೇಹವನ್ನು ಸೂಚಿಸಬಹುದು. "
-            "126 mg/dL ಅಥವಾ ಹೆಚ್ಚಿನ ಮಟ್ಟವನ್ನು ಸೂಕ್ತ ಪರೀಕ್ಷೆ ಮತ್ತು "
-            "ಆರೋಗ್ಯ ತಜ್ಞರ ಸಲಹೆಯ ಮೂಲಕ ದೃಢಪಡಿಸಬೇಕು."
-        ),
+        "en": "Blood glucose is the amount of sugar in the blood. A normal fasting blood glucose level is generally 70–99 mg/dL. Levels of 100–125 mg/dL may indicate prediabetes, while 126 mg/dL or higher may indicate diabetes when confirmed by appropriate testing. Consult a healthcare professional for interpretation.",
+        "hi": "ब्लड ग्लूकोज का अर्थ रक्त में शुगर की मात्रा है। सामान्य फास्टिंग ब्लड ग्लूकोज आमतौर पर 70–99 mg/dL होता है। 100–125 mg/dL प्रीडायबिटीज का संकेत हो सकता है और 126 mg/dL या अधिक डायबिटीज का संकेत हो सकता है। सही जानकारी के लिए डॉक्टर से सलाह लें।",
+        "kn": "ರಕ್ತದಲ್ಲಿನ ಗ್ಲೂಕೋಸ್ ಎಂದರೆ ರಕ್ತದಲ್ಲಿರುವ ಸಕ್ಕರೆಯ ಪ್ರಮಾಣ. ಸಾಮಾನ್ಯ ಉಪವಾಸದ ರಕ್ತದ ಗ್ಲೂಕೋಸ್ ಮಟ್ಟವು ಸಾಮಾನ್ಯವಾಗಿ 70–99 mg/dL ಆಗಿರುತ್ತದೆ. 100–125 mg/dL ಪ್ರೀಡಯಾಬಿಟಿಸ್ ಸೂಚಿಸಬಹುದು ಮತ್ತು 126 mg/dL ಅಥವಾ ಹೆಚ್ಚು ಮಧುಮೇಹವನ್ನು ಸೂಚಿಸಬಹುದು. ಫಲಿತಾಂಶವನ್ನು ವೈದ್ಯರೊಂದಿಗೆ ಪರಿಶೀಲಿಸಿ."
     },
+
     "doc_hemoglobin": {
-        "en": (
-            "Adult hemoglobin reference ranges vary by laboratory and individual "
-            "factors. Low hemoglobin may indicate anemia and should be interpreted "
-            "with other test results and clinical information."
-        ),
-        "hi": (
-            "वयस्कों में हीमोग्लोबिन की सामान्य सीमा प्रयोगशाला और व्यक्ति के "
-            "अनुसार बदल सकती है। कम हीमोग्लोबिन एनीमिया का संकेत हो सकता है। "
-            "इसे अन्य जाँच परिणामों और स्वास्थ्य संबंधी जानकारी के साथ समझना चाहिए।"
-        ),
-        "kn": (
-            "ವಯಸ್ಕರಲ್ಲಿ ಹಿಮೋಗ್ಲೋಬಿನ್‌ನ ಸಾಮಾನ್ಯ ಮಿತಿ ಪ್ರಯೋಗಾಲಯ ಮತ್ತು ವ್ಯಕ್ತಿಯ "
-            "ಸ್ಥಿತಿಗೆ ಅನುಗುಣವಾಗಿ ಬದಲಾಗಬಹುದು. ಕಡಿಮೆ ಹಿಮೋಗ್ಲೋಬಿನ್ ರಕ್ತಹೀನತೆಯನ್ನು "
-            "ಸೂಚಿಸಬಹುದು. ಇದನ್ನು ಇತರ ಪರೀಕ್ಷಾ ಫಲಿತಾಂಶಗಳೊಂದಿಗೆ ಅರ್ಥೈಸಬೇಕು."
-        ),
+        "en": "Hemoglobin is a protein in red blood cells that carries oxygen throughout the body. Low hemoglobin may indicate anemia. Possible symptoms include tiredness, weakness, and dizziness. Normal ranges vary according to age, sex, pregnancy status, and laboratory. Consult a healthcare professional to understand your result.",
+        "hi": "हीमोग्लोबिन लाल रक्त कोशिकाओं में पाया जाने वाला प्रोटीन है, जो शरीर में ऑक्सीजन पहुँचाता है। हीमोग्लोबिन कम होने पर एनीमिया हो सकता है। इसके लक्षण थकान, कमजोरी और चक्कर आना हो सकते हैं। सामान्य स्तर उम्र, लिंग और लैब के अनुसार बदलता है।",
+        "kn": "ಹಿಮೋಗ್ಲೋಬಿನ್ ಕೆಂಪು ರಕ್ತಕಣಗಳಲ್ಲಿರುವ ಪ್ರೋಟೀನ್ ಆಗಿದ್ದು, ದೇಹದಾದ್ಯಂತ ಆಮ್ಲಜನಕವನ್ನು ಸಾಗಿಸುತ್ತದೆ. ಹಿಮೋಗ್ಲೋಬಿನ್ ಕಡಿಮೆಯಾದರೆ ರಕ್ತಹೀನತೆ ಇರಬಹುದು. ದಣಿವು, ದೌರ್ಬಲ್ಯ ಮತ್ತು ತಲೆಸುತ್ತು ಲಕ್ಷಣಗಳಾಗಿರಬಹುದು. ಸಾಮಾನ್ಯ ಮಟ್ಟವು ವಯಸ್ಸು, ಲಿಂಗ ಮತ್ತು ಪ್ರಯೋಗಾಲಯದ ಪ್ರಕಾರ ಬದಲಾಗುತ್ತದೆ."
     },
+
     "doc_creatinine": {
-        "en": (
-            "Creatinine is a waste product filtered by the kidneys. A high result "
-            "can have several causes and should be interpreted with the laboratory "
-            "range, kidney-function tests, and clinical information."
-        ),
-        "hi": (
-            "क्रिएटिनिन एक अपशिष्ट पदार्थ है जिसे गुर्दे रक्त से छानते हैं। "
-            "इसका बढ़ा हुआ स्तर कई कारणों से हो सकता है। परिणाम को प्रयोगशाला "
-            "की सीमा और अन्य जाँचों के साथ समझना चाहिए।"
-        ),
-        "kn": (
-            "ಕ್ರಿಯೇಟಿನೈನ್ ಮೂತ್ರಪಿಂಡಗಳು ರಕ್ತದಿಂದ ಶೋಧಿಸುವ ತ್ಯಾಜ್ಯ ಪದಾರ್ಥವಾಗಿದೆ. "
-            "ಇದರ ಹೆಚ್ಚಿದ ಮಟ್ಟಕ್ಕೆ ಹಲವು ಕಾರಣಗಳಿರಬಹುದು. ಫಲಿತಾಂಶವನ್ನು ಪ್ರಯೋಗಾಲಯದ "
-            "ಮಿತಿ ಮತ್ತು ಇತರ ಪರೀಕ್ಷೆಗಳೊಂದಿಗೆ ಅರ್ಥೈಸಬೇಕು."
-        ),
+        "en": "Creatinine is a waste product produced by muscles and filtered from the blood by the kidneys. A high blood creatinine level may indicate reduced kidney filtration, but other factors can also affect it. Doctors interpret creatinine along with other tests, such as estimated GFR, and the person's medical history.",
+        "hi": "क्रिएटिनिन मांसपेशियों से बनने वाला अपशिष्ट पदार्थ है, जिसे किडनी रक्त से छानकर बाहर निकालती है। रक्त में क्रिएटिनिन बढ़ना किडनी की कार्यक्षमता कम होने का संकेत हो सकता है, लेकिन अन्य कारण भी हो सकते हैं। डॉक्टर इसे अन्य जाँचों के साथ समझते हैं।",
+        "kn": "ಕ್ರಿಯಾಟಿನಿನ್ ಸ್ನಾಯುಗಳಿಂದ ಉತ್ಪತ್ತಿಯಾಗುವ ತ್ಯಾಜ್ಯ ವಸ್ತುವಾಗಿದ್ದು, ಮೂತ್ರಪಿಂಡಗಳು ಅದನ್ನು ರಕ್ತದಿಂದ ಶೋಧಿಸುತ್ತವೆ. ರಕ್ತದಲ್ಲಿನ ಕ್ರಿಯಾಟಿನಿನ್ ಹೆಚ್ಚಾದರೆ ಮೂತ್ರಪಿಂಡಗಳ ಶೋಧನಾ ಸಾಮರ್ಥ್ಯ ಕಡಿಮೆಯಾಗಿರಬಹುದು. ಇತರ ಕಾರಣಗಳೂ ಇರಬಹುದು. ವೈದ್ಯರು ಇದನ್ನು ಇತರ ಪರೀಕ್ಷೆಗಳೊಂದಿಗೆ ಪರಿಶೀಲಿಸುತ್ತಾರೆ."
     },
+
     "doc_cholesterol": {
-        "en": (
-            "Total cholesterol is one measure of blood cholesterol. Interpret it "
-            "alongside the complete lipid profile and other cardiovascular risk factors."
-        ),
-        "hi": (
-            "कुल कोलेस्ट्रॉल रक्त में कोलेस्ट्रॉल का एक माप है। इसे पूरी लिपिड "
-            "प्रोफ़ाइल और हृदय संबंधी अन्य जोखिम कारकों के साथ समझना चाहिए।"
-        ),
-        "kn": (
-            "ಒಟ್ಟು ಕೊಲೆಸ್ಟ್ರಾಲ್ ರಕ್ತದಲ್ಲಿನ ಕೊಲೆಸ್ಟ್ರಾಲ್‌ನ ಒಂದು ಮಾಪನವಾಗಿದೆ. ಇದನ್ನು "
-            "ಸಂಪೂರ್ಣ ಲಿಪಿಡ್ ಪ್ರೊಫೈಲ್ ಮತ್ತು ಇತರ ಹೃದಯ ಸಂಬಂಧಿತ ಅಪಾಯದ ಅಂಶಗಳೊಂದಿಗೆ "
-            "ಅರ್ಥೈಸಬೇಕು."
-        ),
+        "en": "Cholesterol is a fatty substance in the blood that the body needs in certain amounts. High levels of LDL cholesterol can increase the risk of heart disease. A complete lipid profile includes different cholesterol measurements and triglycerides. Results should be interpreted with age and other health risk factors.",
+        "hi": "कोलेस्ट्रॉल रक्त में पाया जाने वाला एक वसायुक्त पदार्थ है, जिसकी शरीर को कुछ मात्रा में आवश्यकता होती है। LDL कोलेस्ट्रॉल अधिक होने से हृदय रोग का खतरा बढ़ सकता है। पूरी लिपिड प्रोफाइल में अलग-अलग कोलेस्ट्रॉल स्तर और ट्राइग्लिसराइड शामिल होते हैं।",
+        "kn": "ಕೊಲೆಸ್ಟ್ರಾಲ್ ರಕ್ತದಲ್ಲಿರುವ ಕೊಬ್ಬಿನಂತಹ ವಸ್ತುವಾಗಿದ್ದು, ದೇಹಕ್ಕೆ ನಿರ್ದಿಷ್ಟ ಪ್ರಮಾಣದಲ್ಲಿ ಅಗತ್ಯವಿದೆ. LDL ಕೊಲೆಸ್ಟ್ರಾಲ್ ಹೆಚ್ಚಾದರೆ ಹೃದಯ ಕಾಯಿಲೆಯ ಅಪಾಯ ಹೆಚ್ಚಬಹುದು. ಸಂಪೂರ್ಣ ಲಿಪಿಡ್ ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿ ವಿವಿಧ ಕೊಲೆಸ್ಟ್ರಾಲ್ ಮಟ್ಟಗಳು ಮತ್ತು ಟ್ರೈಗ್ಲಿಸರೈಡ್‌ಗಳು ಸೇರಿರುತ್ತವೆ."
     },
+
+    "doc_fever": {
+        "en": "Fever is a temporary increase in body temperature, often caused by an infection. Other symptoms may include chills, sweating, headache, and body aches. Fever alone cannot identify the cause. Seek medical advice if it persists or is concerning. Get urgent medical help if severe symptoms occur.",
+        "hi": "बुखार शरीर के तापमान में अस्थायी वृद्धि है, जो अक्सर संक्रमण के कारण होता है। इसके लक्षणों में ठंड लगना, पसीना आना, सिरदर्द और शरीर में दर्द शामिल हो सकते हैं। केवल बुखार से कारण का पता नहीं चलता। बुखार बना रहे या गंभीर लक्षण हों तो चिकित्सा सहायता लें।",
+        "kn": "ಜ್ವರವು ದೇಹದ ಉಷ್ಣತೆಯಲ್ಲಿ ತಾತ್ಕಾಲಿಕ ಹೆಚ್ಚಳವಾಗಿದ್ದು, ಸಾಮಾನ್ಯವಾಗಿ ಸೋಂಕಿನಿಂದ ಉಂಟಾಗಬಹುದು. ಚಳಿ, ಬೆವರು, ತಲೆನೋವು ಮತ್ತು ಮೈ ನೋವು ಇದರ ಲಕ್ಷಣಗಳಾಗಿರಬಹುದು. ಜ್ವರದಿಂದ ಮಾತ್ರ ಕಾರಣವನ್ನು ತಿಳಿಯಲು ಸಾಧ್ಯವಿಲ್ಲ. ಜ್ವರ ಮುಂದುವರಿದರೆ ಅಥವಾ ಗಂಭೀರ ಲಕ್ಷಣಗಳಿದ್ದರೆ ವೈದ್ಯಕೀಯ ಸಹಾಯ ಪಡೆಯಿರಿ."
+    },
+
+    "doc_cough": {
+        "en": "A cough is a reflex that helps clear the airways. It may be caused by viral infections, allergies, asthma, or other conditions. A cough can be dry or produce mucus. Seek medical advice if it persists or worsens. Breathing difficulty, chest pain, or coughing up blood requires prompt medical assessment.",
+        "hi": "खाँसी एक प्राकृतिक प्रतिक्रिया है जो साँस की नलियों को साफ करने में मदद करती है। यह वायरल संक्रमण, एलर्जी, अस्थमा या अन्य कारणों से हो सकती है। खाँसी सूखी या बलगम वाली हो सकती है। खाँसी लंबे समय तक रहे या बढ़े तो डॉक्टर से सलाह लें। साँस लेने में परेशानी, सीने में दर्द या खून वाली खाँसी में तुरंत चिकित्सा सहायता लें।",
+        "kn": "ಕೆಮ್ಮು ಉಸಿರಾಟದ ಮಾರ್ಗಗಳನ್ನು ಸ್ವಚ್ಛಗೊಳಿಸಲು ಸಹಾಯ ಮಾಡುವ ಸಹಜ ಪ್ರತಿಕ್ರಿಯೆಯಾಗಿದೆ. ಇದು ವೈರಲ್ ಸೋಂಕು, ಅಲರ್ಜಿ, ಆಸ್ತಮಾ ಅಥವಾ ಇತರ ಕಾರಣಗಳಿಂದ ಉಂಟಾಗಬಹುದು. ಕೆಮ್ಮು ಒಣಗಿರಬಹುದು ಅಥವಾ ಕಫದೊಂದಿಗೆ ಇರಬಹುದು. ಕೆಮ್ಮು ಮುಂದುವರಿದರೆ ವೈದ್ಯರನ್ನು ಸಂಪರ್ಕಿಸಿ. ಉಸಿರಾಟದ ತೊಂದರೆ, ಎದೆನೋವು ಅಥವಾ ರಕ್ತದೊಂದಿಗೆ ಕೆಮ್ಮು ಬಂದರೆ ತಕ್ಷಣ ವೈದ್ಯಕೀಯ ಸಹಾಯ ಪಡೆಯಿರಿ."
+    },
+
+    "doc_sore_throat": {
+        "en": "A sore throat is pain, irritation, or scratchiness in the throat. Viral infections are a common cause, but bacterial infections such as strep throat can also cause it. Not every sore throat needs antibiotics. A healthcare professional can decide whether testing or treatment is needed.",
+        "hi": "गले में खराश का अर्थ गले में दर्द, जलन या खुरदरापन महसूस होना है। इसका सामान्य कारण वायरल संक्रमण है, लेकिन बैक्टीरियल संक्रमण भी इसका कारण हो सकता है। हर गले की खराश के लिए एंटीबायोटिक की आवश्यकता नहीं होती। डॉक्टर जाँच और उपचार की आवश्यकता तय कर सकते हैं।",
+        "kn": "ಗಂಟಲು ನೋವು ಎಂದರೆ ಗಂಟಲಿನಲ್ಲಿ ನೋವು, ಉರಿ ಅಥವಾ ಕೆರೆತ ಉಂಟಾಗುವುದು. ವೈರಲ್ ಸೋಂಕು ಸಾಮಾನ್ಯ ಕಾರಣವಾಗಿದ್ದು, ಬ್ಯಾಕ್ಟೀರಿಯಾದ ಸೋಂಕೂ ಕಾರಣವಾಗಬಹುದು. ಪ್ರತಿಯೊಂದು ಗಂಟಲು ನೋವಿಗೂ ಆಂಟಿಬಯೋಟಿಕ್ ಅಗತ್ಯವಿಲ್ಲ. ಪರೀಕ್ಷೆ ಅಥವಾ ಚಿಕಿತ್ಸೆ ಬೇಕೇ ಎಂಬುದನ್ನು ವೈದ್ಯರು ನಿರ್ಧರಿಸುತ್ತಾರೆ."
+    },
+
+    "doc_diabetes": {
+        "en": "Diabetes is a condition in which blood glucose levels become too high. It occurs when the body does not make enough insulin or cannot use insulin properly. Possible symptoms include increased thirst, frequent urination, tiredness, and unexplained weight changes. Diagnosis requires appropriate blood tests and medical evaluation.",
+        "hi": "डायबिटीज एक ऐसी स्थिति है जिसमें रक्त में शुगर का स्तर अधिक हो जाता है। यह तब होता है जब शरीर पर्याप्त इंसुलिन नहीं बनाता या उसका सही उपयोग नहीं कर पाता। इसके लक्षणों में अधिक प्यास लगना, बार-बार पेशाब आना और थकान शामिल हो सकते हैं। इसकी पुष्टि के लिए रक्त जाँच और डॉक्टर की सलाह आवश्यक है।",
+        "kn": "ಮಧುಮೇಹವು ರಕ್ತದಲ್ಲಿನ ಸಕ್ಕರೆಯ ಮಟ್ಟ ಹೆಚ್ಚಾಗುವ ಸ್ಥಿತಿಯಾಗಿದೆ. ದೇಹವು ಸಾಕಷ್ಟು ಇನ್ಸುಲಿನ್ ಉತ್ಪಾದಿಸದಿದ್ದಾಗ ಅಥವಾ ಅದನ್ನು ಸರಿಯಾಗಿ ಬಳಸಲಾಗದಿದ್ದಾಗ ಇದು ಸಂಭವಿಸುತ್ತದೆ. ಹೆಚ್ಚು ಬಾಯಾರಿಕೆ, ಆಗಾಗ್ಗೆ ಮೂತ್ರ ವಿಸರ್ಜನೆ ಮತ್ತು ದಣಿವು ಲಕ್ಷಣಗಳಾಗಿರಬಹುದು. ರಕ್ತ ಪರೀಕ್ಷೆ ಮತ್ತು ವೈದ್ಯಕೀಯ ಮೌಲ್ಯಮಾಪನದ ಮೂಲಕ ಇದನ್ನು ಪತ್ತೆಹಚ್ಚಲಾಗುತ್ತದೆ."
+    },
+
+    "doc_blood_pressure": {
+        "en": "Blood pressure is the force of blood pushing against artery walls. It is recorded using two numbers: systolic pressure (top number) and diastolic pressure (bottom number). Persistently high blood pressure can increase the risk of heart and kidney problems. One reading alone may not establish a diagnosis; repeated measurements and medical advice are important.",
+        "hi": "ब्लड प्रेशर वह दबाव है जिससे रक्त धमनियों की दीवारों पर बल डालता है। इसे दो संख्याओं में मापा जाता है: सिस्टोलिक (ऊपरी संख्या) और डायस्टोलिक (निचली संख्या)। लगातार उच्च रक्तचाप से हृदय और किडनी की समस्याओं का खतरा बढ़ सकता है। केवल एक रीडिंग से निदान नहीं किया जाता।",
+        "kn": "ರಕ್ತದೊತ್ತಡ ಎಂದರೆ ರಕ್ತವು ಧಮನಿಗಳ ಗೋಡೆಗಳ ಮೇಲೆ ಬೀರುವ ಒತ್ತಡ. ಇದನ್ನು ಎರಡು ಸಂಖ್ಯೆಗಳ ಮೂಲಕ ಅಳೆಯಲಾಗುತ್ತದೆ: ಸಿಸ್ಟೋಲಿಕ್ (ಮೇಲಿನ ಸಂಖ್ಯೆ) ಮತ್ತು ಡಯಾಸ್ಟೋಲಿಕ್ (ಕೆಳಗಿನ ಸಂಖ್ಯೆ). ನಿರಂತರವಾಗಿ ಅಧಿಕ ರಕ್ತದೊತ್ತಡ ಇದ್ದರೆ ಹೃದಯ ಮತ್ತು ಮೂತ್ರಪಿಂಡದ ಸಮಸ್ಯೆಗಳ ಅಪಾಯ ಹೆಚ್ಚಬಹುದು. ಒಂದೇ ಅಳತೆಯಿಂದ ರೋಗನಿರ್ಣಯ ಮಾಡಲಾಗುವುದಿಲ್ಲ."
+    }
 }
 
 
-# 4. Starter reference documents
+# 4. Medical reference documents
+
 MEDICAL_DOCUMENTS = [
+    # Existing document 1: Glucose
     (
         "Fasting blood glucose is commonly considered normal at 70–99 mg/dL. "
         "Values between 100 and 125 mg/dL may indicate prediabetes. A fasting "
         "result of 126 mg/dL or higher can indicate diabetes when confirmed "
         "using appropriate testing."
     ),
+
+    # Existing document 2: Hemoglobin
     (
         "Hemoglobin is a protein in red blood cells that carries oxygen. Adult "
         "reference ranges vary by laboratory and individual factors. Low "
         "hemoglobin may indicate anemia and requires clinical interpretation."
     ),
+
+    # Existing document 3: Creatinine
     (
         "Creatinine is a waste product from muscle metabolism that is filtered "
         "by the kidneys. Elevated levels may indicate impaired kidney filtration "
         "but must be interpreted with other clinical findings."
     ),
+
+    # Existing document 4: Cholesterol
     (
         "Total cholesterol measures cholesterol in the blood. Results should be "
         "interpreted with the complete lipid profile and the person's other "
         "cardiovascular risk factors."
+    ),
+
+    # New document 5: Fever
+    (
+        "Fever is a temporary increase in body temperature, often associated "
+        "with an infection. Common causes include viral and bacterial infections. "
+        "Other symptoms may include chills, sweating, headache and body aches. "
+        "The cause of fever cannot be identified from temperature alone. "
+        "Seek medical advice for persistent or concerning fever. "
+        "Urgent medical assessment is important for severe symptoms."
+    ),
+
+    # New document 6: Cough
+    (
+        "A cough is a reflex that helps clear the airways. It may occur due to "
+        "viral infections, allergies, asthma or other respiratory conditions. "
+        "A cough can be dry or produce mucus. A cough with difficulty breathing, "
+        "chest pain or blood requires prompt medical assessment."
+    ),
+
+    # New document 7: Sore throat
+    (
+        "A sore throat is pain, irritation or scratchiness in the throat. "
+        "It is commonly caused by viral infections and can sometimes be caused "
+        "by bacterial infections such as strep throat. Not every sore throat "
+        "requires antibiotics. A healthcare professional can determine whether "
+        "testing or treatment is needed."
+    ),
+
+    # New document 8: Diabetes
+    (
+        "Diabetes is a condition in which blood glucose levels are too high. "
+        "It can occur because the body does not produce enough insulin or "
+        "cannot use insulin effectively. Common symptoms may include increased "
+        "thirst, frequent urination, tiredness and unexplained weight loss. "
+        "Diagnosis requires appropriate blood tests and medical evaluation."
+    ),
+
+    # New document 9: Blood pressure
+    (
+        "Blood pressure measures the force of blood against artery walls. "
+        "It is recorded using two numbers: systolic pressure over diastolic "
+        "pressure. Persistently high blood pressure can increase the risk of "
+        "heart and kidney problems. A single reading does not always establish "
+        "a diagnosis; readings should be interpreted by a healthcare professional."
     ),
 ]
 
@@ -134,12 +171,13 @@ MEDICAL_METADATA = [
     {"source": "NIH MedlinePlus", "topic": "Blood Glucose", "page": 1, "doc_id": "MP-GLU-01"},
     {"source": "CDC Laboratory Reference", "topic": "Hemoglobin", "page": 3, "doc_id": "CDC-HEM-02"},
     {"source": "WHO Clinical Guidelines", "topic": "Serum Creatinine", "page": 7, "doc_id": "WHO-CRE-03"},
-    {
-        "source": "National Heart, Lung, and Blood Institute",
-        "topic": "Cholesterol",
-        "page": 2,
-        "doc_id": "NHLBI-CHOL-04",
-    },
+    {"source": "NHLBI", "topic": "Cholesterol", "page": 2, "doc_id": "NHLBI-CHOL-04"},
+
+    {"source": "Medical Knowledge Base", "topic": "Fever", "doc_id": "MED-FEV-05"},
+    {"source": "Medical Knowledge Base", "topic": "Cough", "doc_id": "MED-COU-06"},
+    {"source": "Medical Knowledge Base", "topic": "Sore Throat", "doc_id": "MED-THR-07"},
+    {"source": "Medical Knowledge Base", "topic": "Diabetes", "doc_id": "MED-DIA-08"},
+    {"source": "Medical Knowledge Base", "topic": "Blood Pressure", "doc_id": "MED-BP-09"},
 ]
 
 DOCUMENT_IDS = [
@@ -147,6 +185,11 @@ DOCUMENT_IDS = [
     "doc_hemoglobin",
     "doc_creatinine",
     "doc_cholesterol",
+    "doc_fever",
+    "doc_cough",
+    "doc_sore_throat",
+    "doc_diabetes",
+    "doc_blood_pressure",
 ]
 
 _KB_INITIALIZED = False
