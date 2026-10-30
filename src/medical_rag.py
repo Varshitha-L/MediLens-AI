@@ -90,7 +90,6 @@ def initialize_knowledge_base():
         {
             "source": "MedlinePlus",
             "topic": "White Blood Cells",
-            "page": None,
             "doc_id": "MP-WBC-05",
             "url": "https://medlineplus.gov/lab-tests/white-blood-count-wbc/",
         },
