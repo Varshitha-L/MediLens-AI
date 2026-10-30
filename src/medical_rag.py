@@ -235,7 +235,7 @@ def initialize_knowledge_base() -> None:
 
     # Remove legacy seed documents so stale keyword-only passages cannot
     # compete with the reviewed source collection after an app upgrade.
-    existing = collection.get(include=[])
+    existing = collection.get()
     existing_ids = existing.get("ids", []) if isinstance(existing, dict) else []
     if existing_ids:
         collection.delete(ids=existing_ids)
