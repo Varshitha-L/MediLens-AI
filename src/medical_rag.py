@@ -41,6 +41,21 @@ FALLBACK_KNOWLEDGE = {
         "hi": "श्वेत रक्त कोशिकाएँ (WBC), जिन्हें ल्यूकोसाइट्स भी कहते हैं, प्रतिरक्षा प्रणाली का हिस्सा हैं। ये रक्त और ऊतकों के माध्यम से संक्रमण और अन्य बीमारियों से लड़ने में शरीर की मदद करती हैं। इनके पाँच मुख्य प्रकार न्यूट्रोफिल, लिम्फोसाइट, मोनोसाइट, ईोसिनोफिल और बेसोफिल हैं।",
         "kn": "ಬಿಳಿ ರಕ್ತ ಕಣಗಳು (WBC), ಲ್ಯೂಕೋಸೈಟ್‌ಗಳು ಎಂದೂ ಕರೆಯಲ್ಪಡುತ್ತವೆ, ದೇಹದ ರೋಗನಿರೋಧಕ ವ್ಯವಸ್ಥೆಯ ಭಾಗವಾಗಿವೆ. ಇವು ರಕ್ತ ಮತ್ತು ಅಂಗಾಂಶಗಳ ಮೂಲಕ ಸಂಚರಿಸಿ ಸೋಂಕುಗಳು ಮತ್ತು ಇತರ ಕಾಯಿಲೆಗಳ ವಿರುದ್ಧ ಹೋರಾಡಲು ಸಹಾಯ ಮಾಡುತ್ತವೆ. ಇವುಗಳ ಐದು ಮುಖ್ಯ ವಿಧಗಳು ನ್ಯೂಟ್ರೋಫಿಲ್‌ಗಳು, ಲಿಂಫೋಸೈಟ್‌ಗಳು, ಮೊನೋಸೈಟ್‌ಗಳು, ಇಯೋಸಿನೋಫಿಲ್‌ಗಳು ಮತ್ತು ಬೇಸೋಫಿಲ್‌ಗಳು.",
     },
+    "doc_osteoporosis": {
+        "en": "Osteoporosis is a disease in which bone mineral density or bone mass decreases, or bone structure changes. Bones become weak and brittle, increasing the chance of fractures. It often has no obvious symptoms until a fracture occurs.",
+        "hi": "ऑस्टियोपोरोसिस में हड्डियों का खनिज घनत्व या हड्डियों का द्रव्यमान कम हो जाता है, या उनकी संरचना बदल जाती है। इससे हड्डियाँ कमजोर और भंगुर हो जाती हैं तथा फ्रैक्चर का जोखिम बढ़ता है। अक्सर फ्रैक्चर होने तक स्पष्ट लक्षण नहीं दिखते।",
+        "kn": "ಆಸ್ಟಿಯೊಪೊರೋಸಿಸ್‌ನಲ್ಲಿ ಎಲುಬಿನ ಖನಿಜ ಸಾಂದ್ರತೆ ಅಥವಾ ಎಲುಬಿನ ದ್ರವ್ಯರಾಶಿ ಕಡಿಮೆಯಾಗುತ್ತದೆ, ಅಥವಾ ಎಲುಬಿನ ರಚನೆ ಬದಲಾಗುತ್ತದೆ. ಇದರಿಂದ ಎಲುಬುಗಳು ದುರ್ಬಲವಾಗಿ ಸುಲಭವಾಗಿ ಮುರಿಯುವ ಸಾಧ್ಯತೆ ಹೆಚ್ಚುತ್ತದೆ. ಅನೇಕ ಬಾರಿ ಮುರಿತವಾಗುವವರೆಗೆ ಸ್ಪಷ್ಟ ಲಕ್ಷಣಗಳು ಕಾಣಿಸುವುದಿಲ್ಲ.",
+    },
+    "doc_bmd": {
+        "en": "A bone mineral density (BMD) test measures minerals in bone. Bones with more minerals are denser and tend to be stronger and less likely to break. A central DXA scan commonly measures bone density at the hip and spine. A clinician interprets the result in the context of age and other factors.",
+        "hi": "बोन मिनरल डेंसिटी (BMD) जाँच हड्डियों में खनिजों की मात्रा मापती है। अधिक खनिज वाली हड्डियाँ अधिक घनी होती हैं और सामान्यतः मजबूत होती हैं तथा कम टूटती हैं। केंद्रीय DXA स्कैन में आमतौर पर कूल्हे और रीढ़ की हड्डी की घनता मापी जाती है। चिकित्सक उम्र और अन्य कारकों के संदर्भ में परिणाम समझते हैं।",
+        "kn": "ಮೂಳೆ ಖನಿಜ ಸಾಂದ್ರತೆ (BMD) ಪರೀಕ್ಷೆಯು ಎಲುಬಿನಲ್ಲಿರುವ ಖನಿಜಗಳನ್ನು ಅಳೆಯುತ್ತದೆ. ಹೆಚ್ಚು ಖನಿಜಗಳಿರುವ ಎಲುಬುಗಳು ಹೆಚ್ಚು ಸಾಂದ್ರವಾಗಿದ್ದು ಸಾಮಾನ್ಯವಾಗಿ ಬಲವಾಗಿರುತ್ತವೆ ಮತ್ತು ಸುಲಭವಾಗಿ ಮುರಿಯುವುದಿಲ್ಲ. ಕೇಂದ್ರ DXA ಸ್ಕ್ಯಾನ್ ಸಾಮಾನ್ಯವಾಗಿ ಸೊಂಟ ಮತ್ತು ಬೆನ್ನೆಲುಬಿನ ಸಾಂದ್ರತೆಯನ್ನು ಅಳೆಯುತ್ತದೆ. ವೈದ್ಯರು ವಯಸ್ಸು ಮತ್ತು ಇತರ ಅಂಶಗಳೊಂದಿಗೆ ಫಲಿತಾಂಶವನ್ನು ಅರ್ಥೈಸುತ್ತಾರೆ.",
+    },
+    "doc_calcium_vitd_bones": {
+        "en": "Calcium is a major mineral in bones and helps build and maintain strong bones. Vitamin D helps the body absorb calcium and supports normal bone mineralization. Getting adequate calcium and vitamin D supports bone health, but individual needs vary.",
+        "hi": "कैल्शियम हड्डियों का एक प्रमुख खनिज है और मजबूत हड्डियों के निर्माण तथा रखरखाव में मदद करता है। विटामिन D शरीर को कैल्शियम अवशोषित करने में मदद करता है और हड्डियों के सामान्य खनिजीकरण को सहारा देता है। पर्याप्त कैल्शियम और विटामिन D हड्डियों के स्वास्थ्य में सहायक हैं, लेकिन प्रत्येक व्यक्ति की आवश्यकता अलग हो सकती है।",
+        "kn": "ಕ್ಯಾಲ್ಸಿಯಂ ಎಲುಬಿನ ಪ್ರಮುಖ ಖನಿಜವಾಗಿದ್ದು, ಬಲವಾದ ಎಲುಬುಗಳನ್ನು ನಿರ್ಮಿಸಲು ಮತ್ತು ಕಾಪಾಡಲು ಸಹಾಯ ಮಾಡುತ್ತದೆ. ವಿಟಮಿನ್ D ದೇಹವು ಕ್ಯಾಲ್ಸಿಯಂ ಅನ್ನು ಹೀರಿಕೊಳ್ಳಲು ಮತ್ತು ಸಾಮಾನ್ಯ ಎಲುಬಿನ ಖನಿಜೀಕರಣಕ್ಕೆ ಸಹಾಯ ಮಾಡುತ್ತದೆ. ಸಾಕಷ್ಟು ಕ್ಯಾಲ್ಸಿಯಂ ಮತ್ತು ವಿಟಮಿನ್ D ಎಲುಬಿನ ಆರೋಗ್ಯಕ್ಕೆ ಬೆಂಬಲ ನೀಡುತ್ತವೆ, ಆದರೆ ಪ್ರತಿಯೊಬ್ಬರ ಅಗತ್ಯಗಳು ವಿಭಿನ್ನವಾಗಿರುತ್ತವೆ.",
+    },
 }
 
 
@@ -80,6 +95,26 @@ def initialize_knowledge_base():
             "infections and other diseases. The five major types are neutrophils, "
             "lymphocytes, monocytes, eosinophils, and basophils."
         ),
+        (
+            "Osteoporosis is a disease in which bone mineral density or bone mass "
+            "decreases, or the structure and strength of bone changes. This can make "
+            "bones weak and brittle and increase the risk of fractures. Osteoporosis "
+            "often has no obvious symptoms until a bone breaks. Bone mineral density "
+            "testing can help identify osteoporosis and assess fracture risk."
+        ),
+        (
+            "A bone mineral density (BMD) test measures calcium and other minerals in "
+            "bone. Bones with more minerals are denser, tend to be stronger, and are "
+            "less likely to break. A central dual-energy x-ray absorptiometry scan, "
+            "called DXA or DEXA, commonly measures bone density at the hip and spine. "
+            "A clinician interprets BMD results using the person's age and clinical context."
+        ),
+        (
+            "Calcium is a major mineral component of bones and helps build and maintain "
+            "strong bones. Vitamin D helps the body absorb calcium and supports normal "
+            "bone mineralization. Adequate calcium and vitamin D support bone health, "
+            "but individual needs vary by age and other factors."
+        ),
     ]
 
     metadatas = [
@@ -93,9 +128,30 @@ def initialize_knowledge_base():
             "doc_id": "MP-WBC-05",
             "url": "https://medlineplus.gov/lab-tests/white-blood-count-wbc/",
         },
+        {
+            "source": "National Institute of Arthritis and Musculoskeletal and Skin Diseases (NIAMS)",
+            "topic": "Osteoporosis",
+            "doc_id": "NIAMS-OSTEO-01",
+            "url": "https://www.niams.nih.gov/health-topics/osteoporosis",
+        },
+        {
+            "source": "National Institute of Arthritis and Musculoskeletal and Skin Diseases (NIAMS)",
+            "topic": "Bone Mineral Density Tests",
+            "doc_id": "NIAMS-BMD-02",
+            "url": "https://www.niams.nih.gov/health-topics/bone-mineral-density-tests-what-numbers-mean",
+        },
+        {
+            "source": "National Institute of Arthritis and Musculoskeletal and Skin Diseases (NIAMS)",
+            "topic": "Calcium and Vitamin D for Bone Health",
+            "doc_id": "NIAMS-BONE-03",
+            "url": "https://www.niams.nih.gov/health-topics/calcium-and-vitamin-d-important-bone-health",
+        },
     ]
 
-    ids = ["doc_glucose", "doc_hemoglobin", "doc_creatinine", "doc_cholesterol", "doc_wbc"]
+    ids = [
+        "doc_glucose", "doc_hemoglobin", "doc_creatinine", "doc_cholesterol",
+        "doc_wbc", "doc_osteoporosis", "doc_bmd", "doc_calcium_vitd_bones",
+    ]
     collection.upsert(documents=medical_documents, metadatas=metadatas, ids=ids)
 
 
