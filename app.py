@@ -330,13 +330,21 @@ def render_results_table(results: list[dict[str, Any]], flags: dict[str, Any]) -
 
 
 def render_explanation_panel(explanation: dict[str, Any]) -> None:
+    ai_generated = explanation.get("ai_generated", True) is not False
+    if ai_generated:
+        panel_title = "AI Explanation"
+        panel_subtitle = "Generated from the extracted report data"
+    else:
+        panel_title = "Reference Range Comparison"
+        panel_subtitle = "Gemini is temporarily unavailable; showing report-based comparisons only"
+
     st.markdown(
         '<div class="ml-card-heading"><div class="ml-icon-tile">✦</div>'
-        '<div><div class="ml-panel-title">AI Explanation</div>'
-        '<div class="ml-panel-sub">Powered by your existing Gemini explanation workflow</div></div></div>',
+        f'<div><div class="ml-panel-title">{panel_title}</div>'
+        f'<div class="ml-panel-sub">{panel_subtitle}</div></div></div>',
         unsafe_allow_html=True,
     )
-    summary = explanation.get("summary") or "No summary was returned by Gemini."
+    summary = explanation.get("summary") or "No summary is available."
     st.markdown(f'<div class="ml-ai-explanation">{html.escape(str(summary))}</div>', unsafe_allow_html=True)
 
     explanations = explanation.get("explanations", []) or []
