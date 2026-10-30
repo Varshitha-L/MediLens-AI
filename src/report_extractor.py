@@ -4,11 +4,14 @@ import pymupdf
 import pytesseract
 from PIL import Image
 
-# Explicitly configure the Windows Tesseract executable.
-pytesseract.pytesseract.tesseract_cmd = (
-    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-)
+import os
 
+# Configure Tesseract on Windows only when it exists.
+if os.name == "nt":
+    tesseract_path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+    if os.path.isfile(tesseract_path):
+        pytesseract.pytesseract.tesseract_cmd = tesseract_path
 
 def extract_report(file_bytes, filename):
     source_type = (
