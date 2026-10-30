@@ -747,7 +747,7 @@ def chatbot_tab(language_code: str) -> None:
                         '<div class="ml-ai-head"><div class="ml-ai-avatar">✦</div>'
                         '<div class="ml-ai-identity"><div class="ml-ai-name">MediLens AI'
                         f'<span class="ml-source-badge">✦ {count} source(s)</span></div>'
-                        '<div class="ml-ai-caption">Evidence-aware health information</div></div>'
+                        f'<div class="ml-ai-caption">{ "Gemini-generated answer" if chat_result.get("ai_generated") else "Retrieved reference material (not AI-generated)" }</div></div>'
                         f'<div class="ml-ai-time">{html.escape(str(response_time))}</div></div>'
                         '</div>',
                         unsafe_allow_html=True,
@@ -759,7 +759,7 @@ def chatbot_tab(language_code: str) -> None:
                     st.markdown(answer)
                     st.markdown('</div>', unsafe_allow_html=True)
                     st.markdown(
-                        '<div class="ml-answer-footnote">This information is based on the references returned by the current medical knowledge base. It is not a diagnosis.</div>',
+                        f'<div class="ml-answer-footnote">{html.escape(str(chat_result.get("safety_message") or "This information is based on the references returned by the medical knowledge base. It is not a diagnosis."))}</div>',
                         unsafe_allow_html=True,
                     )
                     st.markdown(
@@ -813,6 +813,9 @@ def chatbot_tab(language_code: str) -> None:
                                 "answer": result.get("answer", ""),
                                 "sources": result.get("sources", []) or [],
                                 "insufficient_evidence": result.get("insufficient_evidence", False),
+                                "ai_generated": result.get("ai_generated", False),
+                                "answer_mode": result.get("answer_mode", "verified_reference"),
+                                "safety_message": result.get("safety_message", ""),
                             }
                     except Exception as exc:
                         print("Medical Q&A error:", type(exc).__name__, str(exc), flush=True)
