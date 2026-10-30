@@ -1,14 +1,14 @@
 import os
 import chromadb
 from dotenv import load_dotenv
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
-# 1. Load API Key and configure REST transport
+# 1. Load the API key. The modern Google Gen AI SDK is used below.
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 if api_key:
     api_key = api_key.strip().strip("'\"")
-    genai.configure(api_key=api_key, transport="rest")
 
 # 2. Connect to local persistent Chroma DB
 chroma_client = chromadb.PersistentClient(path="./chroma_data")
@@ -36,13 +36,16 @@ FALLBACK_KNOWLEDGE = {
         "hi": "कुल कोलेस्ट्रॉल 200 mg/dL से कम होना चाहिए। 200 से 239 mg/dL बॉर्डरलाइन उच्च और 240 mg/dL या अधिक हृदय रोग के जोखिम को बढ़ा सकता है।",
         "kn": "ಒಟ್ಟು ಕೊಲೆಸ್ಟ್ರಾಲ್ 200 mg/dL ಗಿಂತ ಕಡಿಮೆಯಿರಬೇಕು. 200 ರಿಂದ 239 mg/dL ಗಡಿರೇಖೆಯಾಗಿದ್ದು, 240 mg/dL ಗಿಂತ ಹೆಚ್ಚು ಹೃದ್ರೋಗದ ಅಪಾಯವನ್ನು ಹೆಚ್ಚಿಸುತ್ತದೆ.",
     },
+    "doc_wbc": {
+        "en": "White blood cells (WBCs), also called leukocytes, are part of the immune system. They travel through the blood and tissues to help the body fight infections and other diseases. The five major types are neutrophils, lymphocytes, monocytes, eosinophils, and basophils.",
+        "hi": "श्वेत रक्त कोशिकाएँ (WBC), जिन्हें ल्यूकोसाइट्स भी कहते हैं, प्रतिरक्षा प्रणाली का हिस्सा हैं। ये रक्त और ऊतकों के माध्यम से संक्रमण और अन्य बीमारियों से लड़ने में शरीर की मदद करती हैं। इनके पाँच मुख्य प्रकार न्यूट्रोफिल, लिम्फोसाइट, मोनोसाइट, ईोसिनोफिल और बेसोफिल हैं।",
+        "kn": "ಬಿಳಿ ರಕ್ತ ಕಣಗಳು (WBC), ಲ್ಯೂಕೋಸೈಟ್‌ಗಳು ಎಂದೂ ಕರೆಯಲ್ಪಡುತ್ತವೆ, ದೇಹದ ರೋಗನಿರೋಧಕ ವ್ಯವಸ್ಥೆಯ ಭಾಗವಾಗಿವೆ. ಇವು ರಕ್ತ ಮತ್ತು ಅಂಗಾಂಶಗಳ ಮೂಲಕ ಸಂಚರಿಸಿ ಸೋಂಕುಗಳು ಮತ್ತು ಇತರ ಕಾಯಿಲೆಗಳ ವಿರುದ್ಧ ಹೋರಾಡಲು ಸಹಾಯ ಮಾಡುತ್ತವೆ. ಇವುಗಳ ಐದು ಮುಖ್ಯ ವಿಧಗಳು ನ್ಯೂಟ್ರೋಫಿಲ್‌ಗಳು, ಲಿಂಫೋಸೈಟ್‌ಗಳು, ಮೊನೋಸೈಟ್‌ಗಳು, ಇಯೋಸಿನೋಫಿಲ್‌ಗಳು ಮತ್ತು ಬೇಸೋಫಿಲ್‌ಗಳು.",
+    },
 }
 
 
 def initialize_knowledge_base():
-    """Populates Chroma DB with verified medical documents if empty."""
-    if collection.count() > 0:
-        return
+    """Upserts the verified reference set, including new references, without duplicating IDs."""
 
     medical_documents = [
         (
@@ -71,6 +74,12 @@ def initialize_knowledge_base():
             "borderline high, and 240 mg/dL or greater is considered elevated, which "
             "may increase cardiovascular risk."
         ),
+        (
+            "White blood cells (WBCs), also called leukocytes, are part of the immune "
+            "system. They travel through the blood and tissues to help the body fight "
+            "infections and other diseases. The five major types are neutrophils, "
+            "lymphocytes, monocytes, eosinophils, and basophils."
+        ),
     ]
 
     metadatas = [
@@ -78,10 +87,17 @@ def initialize_knowledge_base():
         {"source": "CDC Laboratory Reference", "topic": "Hemoglobin", "page": 3, "doc_id": "CDC-HEM-02"},
         {"source": "WHO Clinical Guidelines", "topic": "Serum Creatinine", "page": 7, "doc_id": "WHO-CRE-03"},
         {"source": "National Heart, Lung, and Blood Institute", "topic": "Cholesterol", "page": 2, "doc_id": "NHLBI-CHOL-04"},
+        {
+            "source": "MedlinePlus",
+            "topic": "White Blood Cells",
+            "page": None,
+            "doc_id": "MP-WBC-05",
+            "url": "https://medlineplus.gov/lab-tests/white-blood-count-wbc/",
+        },
     ]
 
-    ids = ["doc_glucose", "doc_hemoglobin", "doc_creatinine", "doc_cholesterol"]
-    collection.add(documents=medical_documents, metadatas=metadatas, ids=ids)
+    ids = ["doc_glucose", "doc_hemoglobin", "doc_creatinine", "doc_cholesterol", "doc_wbc"]
+    collection.upsert(documents=medical_documents, metadatas=metadatas, ids=ids)
 
 
 def answer_question(query: str, language: str = "en") -> dict:
@@ -139,32 +155,47 @@ def answer_question(query: str, language: str = "en") -> dict:
     # Fetch pre-translated reference corresponding strictly to target language
     fallback_text = FALLBACK_KNOWLEDGE.get(retrieved_id, {}).get(target_code, retrieved_chunk)
 
-    # 2. Call Gemini if API Key is configured
+    # 2. Generate an answer with Gemini when the API key is configured.
+    # If the request fails, use the matching verified reference text below.
     answer_text = None
     if api_key:
         system_instruction = (
             "You are the Medical Assistant for MediLens AI.\n"
-            "Answer using ONLY the provided verified medical context.\n"
-            "Rules:\n"
-            "1. Do NOT diagnose or prescribe.\n"
-            "2. Explain clearly in 2-3 sentences.\n"
-            f"3. MANDATORY: Write the ENTIRE explanation in {target_name} language. "
-            f"If Hindi, use Devanagari script. If Kannada, use Kannada script."
+            "Answer the user's exact question using ONLY the supplied verified medical context.\n"
+            "Do not switch to a different blood test or medical topic. If the context does not "
+            "answer the question, say that the knowledge base does not contain enough evidence.\n"
+            "Do NOT diagnose, prescribe, or recommend treatment. Explain clearly in 2-3 sentences.\n"
+            f"Write the entire answer in {target_name}."
         )
-        prompt = f"Medical Reference Context:\n\"\"\"{retrieved_chunk}\"\"\"\n\nUser Question: {query}"
+        prompt = (
+            f"Verified medical reference context:\n{retrieved_chunk}\n\n"
+            f"User question: {query}\n\n"
+            "Answer only the question asked. Do not provide unrelated reference ranges."
+        )
 
+        client = None
         try:
-            model = genai.GenerativeModel(
-                model_name="models/gemini-3.8-flash",
-                system_instruction=system_instruction,
-                generation_config={"temperature": 0.1, "max_output_tokens": 150},
+            client = genai.Client(
+                api_key=api_key,
+                http_options=types.HttpOptions(timeout=15000),
             )
-            response = model.generate_content(prompt, request_options={"timeout": 15.0})
+            response = client.models.generate_content(
+                model="gemini-3.8-flash",
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    temperature=0.1,
+                    max_output_tokens=150,
+                ),
+            )
             if response and response.text:
                 answer_text = response.text.strip()
-        except Exception:
-            # If Google API quota is exhausted (Error 429), use verified pre-translated clinical guidance
-            pass
+        except Exception as exc:
+            # Keep runtime logs useful without ever printing the API key.
+            print(f"Medical Q&A Gemini request failed: {type(exc).__name__}", flush=True)
+        finally:
+            if client is not None:
+                client.close()
 
     # If Gemini quota exceeded or key missing, format fallback in the exact selected language
     if not answer_text:
@@ -185,6 +216,7 @@ def answer_question(query: str, language: str = "en") -> dict:
                 "source": retrieved_meta.get("source"),
                 "topic": retrieved_meta.get("topic"),
                 "page": retrieved_meta.get("page"),
+                "url": retrieved_meta.get("url"),
                 "excerpt": retrieved_chunk[:120] + "...",
             }
         ],
